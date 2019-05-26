@@ -1,8 +1,12 @@
 # QmlTreeView
 
 > Customize TreeView with ListView in QtQuick.Controls 2.x，No need for c++（机翻英语）。
+
 > 用Lisview自定义的Treeview，不用C++代码配合。
+
 > model可以通过解析json获得
+
+> !!!如果遇到编码问题可以把中文注释删了再试试
 
 ### demo样式
 ![demo](https://github.com/gongjianbo/QmlTreeView/blob/master/img/demo.png)
