@@ -1,26 +1,38 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.1
 
 Item{
     id:tree_root
-    property alias model: list_view.model
     property int currentItem: 0 //当前选中item
+    property int padding: 10    //边框到内容的距离
+    property int spacing: 10    //项之间距离
+    property int indent: 5      //子项缩进距离,注意实际还有icon的距离
+    property string onSrc: "qrc:/img/on.png"
+    property string offSrc: "qrc:/img/off.png"
+    property string checkedSrc: "qrc:/img/check.png"
+    property string uncheckSrc: "qrc:/img/uncheck.png"
+
     property variant checkedArray: [] //当前已勾选的items
+    //还有一些样式没有导出，可以根据需要自己写alias
+    property alias model: list_view.model
+    property alias background: background_rect
 
 
     //背景
     Rectangle{
         id:background_rect
         anchors.fill: parent
-        color: "green"
-        border.width: 1
-        border.color: "darkgreen"
+        color: Qt.rgba(2/255,19/255,23/255,128/255)
+        //border.width: 1
+        //border.color: "darkgreen"
     }
+
 
     //主要是为了可以横向滚动，listview字节有点问题
     Flickable {
         anchors.fill: parent
-        contentWidth: 500
+        anchors.margins: padding
+        contentWidth: 500 //这里应该自适应项x最大偏移+最大项的长度，还没做
         clip: true
 
         ListView{
@@ -29,12 +41,11 @@ Item{
             //可以配合root的currentItem来做高亮
             property int itemCount: 0
             anchors.fill: parent
-            anchors.margins: 1
             //model: //model由外部设置，通过解析json
             delegate: list_delegate
             //clip: true  //这里不用加
             onModelChanged: {
-                checkedArray=[];
+                checkedArray=[]; //model切换的时候把之前的选中列表清空
             }
         }
         //end list_view
@@ -43,50 +54,70 @@ Item{
             id:list_delegate
             Row{
                 id:list_itemgroup
+                spacing: 5
 
                 //canvas 画项之间的连接线
                 Canvas{
                     id:list_canvas
-                    width: 20
+                    width: item_titleicon.width+10
                     height: list_itemcol.height
+                    //开了反走样，线会模糊看起来加粗了
+                    antialiasing: false
                     //最后一项的连接线没有尾巴
                     property bool isLastItem: (index==parent.ListView.view.count-1)
                     onPaint: {
                         var ctx = getContext("2d")
-
+                        var i=0
+                        //ctx.setLineDash([4,2]); 遇到个大问题，不能画虚线
                         // setup the stroke
-                        ctx.strokeStyle = "red"
-
+                        ctx.strokeStyle = Qt.rgba(201/255,202/255,202/255,1)
+                        ctx.lineWidth=1
                         // create a path
                         ctx.beginPath()
-                        ctx.moveTo(10,0)
-                        ctx.lineTo(10,list_itemrow.height/2)
-                        // ctx.moveTo(10,0)
+                        //用短线段来实现虚线效果，判断里-3是防止width(4)超过判断长度
+                        //此外还有5的偏移是因为我image是透明背景的，为了不污染到图标
+                        //这里我是虚线长4，间隔2，加起来就是6一次循环
+                        //效果勉强
+                        ctx.moveTo(width/2,0) //如果第一个item虚线是从左侧拉过来，要改很多
+                        for(i=0;i<list_itemrow.height/2-5-3;i+=6){
+                            ctx.lineTo(width/2,i+4);
+                            ctx.moveTo(width/2,i+6);
+                        }
 
-                        ctx.lineTo(20,list_itemrow.height/2)
+                        ctx.moveTo(width/2+5,list_itemrow.height/2)
+                        for(i=width/2+5;i<width-3;i+=6){
+                            ctx.lineTo(i+4,list_itemrow.height/2);
+                            ctx.moveTo(i+6,list_itemrow.height/2);
+                        }
+
                         if(!isLastItem){
-                            ctx.moveTo(10,list_itemrow.height/2)
-                            ctx.lineTo(10,height)
+                            ctx.moveTo(width/2,list_itemrow.height/2+5)
+                            for(i=list_itemrow.height/2+5;i<height-3;i+=6){
+                                ctx.lineTo(width/2,i+4);
+                                ctx.moveTo(width/2,i+6);
+                            }
+                            //ctx.lineTo(10,height)
                         }
                         // stroke path
                         ctx.stroke()
                     }
 
-                    //项图标框
-                    Rectangle{
+                    //项图标框--可以是ractangle或者image
+                    Image {
                         id:item_titleicon
                         visible: false
-                        width: 10
-                        height: 10
+                        //如果是centerIn的话展开之后就跑到中间去了
                         anchors.left: parent.left
                         anchors.top: parent.top
-                        anchors.leftMargin: list_canvas.width/4
-                        anchors.topMargin: list_itemrow.height/4
-                        //anchors.verticalCenter: parent.verticalCenter
-                        //可以替换为image，根据是否有子项/是否展开加载不同的图片
-                        color: item_repeater.count
-                               ?item_sub.visible?"white":"gray"
-                        :"black"
+                        anchors.leftMargin: list_canvas.width/2-width/2
+                        anchors.topMargin: list_itemrow.height/2-width/2
+                        //根据是否有子项/是否展开加载不同的图片/颜色
+                        //color: item_repeater.count
+                        //      ?item_sub.visible?"white":"gray"
+                        //:"black"
+                        //这里没子项或者子项未展开未off，展开了为on
+                        source: item_repeater.count?item_sub.visible?offSrc:onSrc:offSrc
+
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
@@ -96,22 +127,22 @@ Item{
                         }
                     }
 
-                    //项勾选框
-                    Rectangle{
+                    //项勾选框--可以是ractangle或者image
+                    Image {
                         id:item_optionicon
                         visible: false
                         width: 10
                         height: 10
                         anchors.left: parent.left
                         anchors.top: parent.top
-                        anchors.leftMargin: list_canvas.width/4
-                        anchors.topMargin: list_itemrow.height/4
-                        //anchors.verticalCenter: parent.verticalCenter
+                        anchors.leftMargin: list_canvas.width/2-width/2
+                        anchors.topMargin: list_itemrow.height/2-width/2
                         property bool checked: false
-                        //可以替换为image，勾选框
-                        color: checked
-                               ?"lightgreen"
-                               :"red"
+                        //勾选框
+                        //color: checked
+                        //       ?"lightgreen"
+                        //       :"red"
+                        source: checked?checkedSrc:uncheckSrc
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
@@ -139,27 +170,28 @@ Item{
                     Row {
                         id:list_itemrow
                         width: list_view.width
-                        height: item_text.implicitHeight+6
+                        height: item_text.implicitHeight+tree_root.spacing
                         spacing: 5
 
                         property int itemIndex;
 
 
                         Rectangle{
-                            height: item_text.implicitHeight+6
+                            height: item_text.implicitHeight+tree_root.spacing
                             width: parent.width
                             anchors.verticalCenter: parent.verticalCenter
                             color: (currentItem===list_itemrow.itemIndex)
-                                   ?"cyan"
-                                   :"orange"
+                                   ?Qt.rgba(101/255,255/255,255/255,38/255)
+                                   :"transparent"
 
                             Text {
                                 id:item_text
                                 anchors.left: parent.left
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: modelData.text
-                                font.pixelSize: 20
-                                font.family: "SimSun"
+                                font.pixelSize: 14
+                                font.family: "Microsoft YaHei UI"
+                                color: Qt.rgba(101/255,1,1,1)
                             }
 
                             MouseArea{
@@ -188,7 +220,7 @@ Item{
                         id:item_sub
                         visible: false
                         //上级左侧距离=小图标宽+x偏移
-                        x:10
+                        x:indent
                         Item {
                             width: 10
                             height: item_repeater.contentHeight

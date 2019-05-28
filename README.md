@@ -1,4 +1,4 @@
-# QmlTreeView
+﻿# QmlTreeView
 
 > Customize TreeView with ListView in QtQuick.Controls 2.x，No need for c++（机翻英语）。
 
@@ -8,8 +8,11 @@
 
 > !!!如果遇到编码问题可以把中文注释删了再试试
 
-### demo样式
+### 初版demo样式[20190526]
 ![demo](https://github.com/gongjianbo/QmlTreeView/blob/master/img/demo.png)
+
+### 改进版demo样式[20190528]
+![demo2](https://github.com/gongjianbo/QmlTreeView/blob/master/img/demo_2.png)
 
 > 只需要替换下背景色和图标就能作为一个简单的treeview应用到项目中了。
 

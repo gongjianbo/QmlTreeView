@@ -2,5 +2,9 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>TreeView.qml</file>
+        <file>img/check.png</file>
+        <file>img/off.png</file>
+        <file>img/on.png</file>
+        <file>img/uncheck.png</file>
     </qresource>
 </RCC>
