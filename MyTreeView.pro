@@ -1,0 +1,5 @@
+TEMPLATE = subdirs
+
+SUBDIRS += QmlTreeView
+
+OTHER_FILES += LICENSE README.md
