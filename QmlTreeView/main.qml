@@ -27,7 +27,9 @@ Window {
 
         //set model data
         Component.onCompleted: {
+            console.log(1)
             root_window.setTestDataA();
+            console.log(2)
         }
     }
 
@@ -42,7 +44,7 @@ Window {
             text: "ChangeModel"
             checkable: true
             //changed model data
-            onCheckedChanged: {
+            onClicked: {
                 if(checked){
                     root_window.setTestDataB();
                 }else{
@@ -94,6 +96,44 @@ Window {
             "subnodes":[
                 {"text":"3-1 two","istitle":true},
                 {"text":"3-2 two","istitle":true}
+            ]
+        },
+        {
+            "text":"4 one",
+            "istitle":true,
+            "subnodes":[
+                {"text":"4-1 two","istitle":true},
+                {
+                    "text":"4-2 two",
+                    "istitle":true,
+                    "subnodes":[
+                        {"text":"4-2-1 three","isoption":true},
+                        {"text":"4-2-2 three","isoption":true}
+                    ]
+                }
+            ]
+        },
+        {
+            "text":"5 one",
+            "istitle":true,
+            "subnodes":[
+                {"text":"5-1 two","istitle":true},
+                {
+                    "text":"5-2 two",
+                    "istitle":true,
+                    "subnodes":[
+                        {"text":"5-2-1 three","isoption":true},
+                        {"text":"5-2-2 three","isoption":true}
+                    ]
+                }
+            ]
+        },
+        {
+            "text":"6 one",
+            "istitle":true,
+            "subnodes":[
+                {"text":"6-1 two","istitle":true},
+                {"text":"6-2 two","istitle":true}
             ]
         }
     ]')
